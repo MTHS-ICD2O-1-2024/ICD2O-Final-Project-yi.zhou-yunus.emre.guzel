@@ -1,0 +1,91 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 15px;
+  margin-left: 20px;
+}
+
+.jarvis-bot {
+  font-family: "Roboto Condensed", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: weight;
+  font-style: italic;
+  background: black;
+  color: white;
+  font-size: 1.2rem;
+}
+
+.container {
+  margin-left: 40%;
+}
+
+.questoin {
+  margin-top: 20%;
+  font-size: 2.5rem;
+}
+
+
+form {
+  margin-top: 30%;
+  padding: 2rem;
+  width: 45%;
+  margin-left: -7rem;
+  border-radius: 1.2rem;
+
+  display: flex;
+  align-items: flex-end;
+  background-color: #ffffff;
+  box-shadow: 0 1px 6px 0 rgba(32, 33, 36, 0.28);
+  box-sizing: border-box;
+}
+
+.jarvis-bot-input {
+  flex-grow: 1;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  color: #202124;
+  background-color: transparent;
+  font-family: inherit;
+  line-height: 2rem;
+  padding: 0;
+  margin-right: 12px;
+  resize: none;
+  overflow-y: hidden;
+  min-height: 2rem;
+  max-height: 10rem;
+}
+
+.jarvis-bot-input::placeholder {
+  color: black;
+  opacity: 1;
+}
+
+#send {
+  margin-left: -4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  text-decoration: none;
+  color: black;
+  line-height: 4rem;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  height: 2.5rem;
+  line-height: normal;
+  border-radius: 50%;
+}
+
+#send i {
+  font-size: 20px;
+}
+
+.change-theme{
+  cursor: pointer;
+
+}
