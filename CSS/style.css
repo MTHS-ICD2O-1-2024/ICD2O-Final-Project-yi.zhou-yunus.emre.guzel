@@ -81,14 +81,17 @@ form {
   font-size: 20px;
 }
 
-.jarvis-bot-title{
+.jarvis-bot-title {
+  /* Corrected: Added space before { */
   font-size: 4rem;
   display: inline;
   margin: 3rem;
 }
 
-.change-theme{
-  padding: .4rem;
+.change-theme {
+  /* Corrected: Added space before { */
+  padding: 0.4rem;
+  /* Corrected: Added leading zero */
   display: inline-flex;
   margin-left: 2rem;
   border-radius: 15%;
