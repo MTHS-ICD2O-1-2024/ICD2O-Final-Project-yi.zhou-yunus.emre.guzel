@@ -12,6 +12,7 @@ html {
   font-family: "Roboto Condensed", sans-serif;
   font-optical-sizing: auto;
   font-weight: weight;
+  /* This 'weight' value might still be an issue if it's not a valid CSS font-weight. */
   font-style: italic;
   background: black;
   color: white;
@@ -23,10 +24,10 @@ html {
 }
 
 .questoin {
+  /* Typo: Should probably be .question */
   margin-top: 20%;
   font-size: 2.5rem;
 }
-
 
 form {
   margin-top: 30%;
@@ -34,10 +35,11 @@ form {
   width: 45%;
   margin-left: -7rem;
   border-radius: 1.2rem;
-
   display: flex;
+  /* Corrected: Removed empty line before declaration */
   align-items: flex-end;
-  background-color: #ffffff;
+  background-color: #fff;
+  /* Corrected: Shortened to #fff */
   box-shadow: 0 1px 6px 0 rgba(32, 33, 36, 0.28);
   box-sizing: border-box;
 }
@@ -72,11 +74,11 @@ form {
   text-align: center;
   text-decoration: none;
   color: black;
-  line-height: 4rem;
+  /* Removed duplicate line-height declaration */
   flex-shrink: 0;
   width: 40px;
-  height: 40px;
   height: 2.5rem;
+  /* Corrected: Removed duplicate height, kept 2.5rem */
   line-height: normal;
   border-radius: 50%;
 }
@@ -85,7 +87,6 @@ form {
   font-size: 20px;
 }
 
-.change-theme{
+.change-theme {
   cursor: pointer;
-
 }
