@@ -19,7 +19,7 @@
 }
 
 .page-content {
-  color: white;
+  color: rgb(0, 0, 0);
   font-family: Helvetica, Arial, sans-serif;
   font-size: 3.25rem;
   margin-bottom: 24px;
@@ -33,7 +33,7 @@
 }
 
 body {
-  background-color: cornflowerblue;
+  background-color: rgb(255, 255, 255);
 }
 
 .mdl-inputbox {
@@ -42,4 +42,19 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 40vh;
+}
+
+.color-toggle-btn {
+  width: 32px;
+  height: 32px;
+  background: #000000;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  margin-left: auto;
+  margin-right: 8px;
+}
+.mdl-layout__header-row {
+  display: flex;
+  align-items: center;
 }
