@@ -2,84 +2,89 @@
 * Created on: May 2025
 * This file contains the JS for index.html
 */
-"use strict";
-const chatArea = document.getElementById('chat-area');
-const chatForm = document.getElementById('chat-form');
-const userInput = document.getElementById('user-input');
-const apiKey = 'AIzaSyCfS7TjJLVIP557y5rwqPAH9YGWZj5EtUs';
+'use strict'
+const chatArea = document.getElementById('chat-area')
+const chatForm = document.getElementById('chat-form')
+const userInput = document.getElementById('user-input')
+const apiKey = 'AIzaSyCfS7TjJLVIP557y5rwqPAH9YGWZj5EtUs'
+
 function toggleTheme() {
-  document.body.classList.toggle('dark-theme');
+  document.body.classList.toggle('dark-theme')
 }
+
 chatForm.addEventListener('submit', async (event) => {
-  event.preventDefault();
-  const userMessageText = userInput.value.trim();
+  event.preventDefault()
+  const userMessageText = userInput.value.trim()
   if (userMessageText) {
-    appendMessage(userMessageText, 'user', "enter");
-    userInput.value = '';
-    userInput.style.height = 'auto';
-    userInput.style.overflowY = 'hidden';
-    const typingIndicatorId = 'typing-indicator-' + Date.now();
-    appendMessage('Jarvis is thinking...', 'bot', typingIndicatorId);
+    appendMessage(userMessageText, 'user', 'enter')
+    userInput.value = ''
+    userInput.style.height = 'auto'
+    userInput.style.overflowY = 'hidden'
+    const typingIndicatorId = 'typing-indicator-' + Date.now()
+    appendMessage('Jarvis is thinking...', 'bot', typingIndicatorId)
     try {
-      const geminiResponse = await getGeminiResponse(userMessageText);
-      removeMessage(typingIndicatorId);
-      appendMessage(geminiResponse, 'bot');
+      const geminiResponse = await getGeminiResponse(userMessageText)
+      removeMessage(typingIndicatorId)
+      appendMessage(geminiResponse, 'bot')
     } catch (error) {
-      removeMessage(typingIndicatorId);
-      console.error('Error fetching from Gemini:', error);
-      appendMessage(`Sorry, I encountered an error: ${error.message || 'Please try again.'}`, 'bot');
+      removeMessage(typingIndicatorId)
+      console.error('Error fetching from Gemini:', error)
+      appendMessage(`Sorry, I encountered an error: ${error.message || 'Please try again.'}`, 'bot')
     }
   }
-});
+})
+
 function appendMessage(text, sender, elementId = null) {
-  const messageDiv = document.createElement('div');
-  messageDiv.classList.add('chat-message', `${sender}-message`);
+  const messageDiv = document.createElement('div')
+  messageDiv.classList.add('chat-message', `${sender}-message`)
   if (elementId) {
-    messageDiv.id = elementId;
+    messageDiv.id = elementId
   }
-  messageDiv.textContent = text;
-  chatArea.appendChild(messageDiv);
-  chatArea.scrollTop = chatArea.scrollHeight;
+  messageDiv.textContent = text
+  chatArea.appendChild(messageDiv)
+  chatArea.scrollTop = chatArea.scrollHeight
 }
+
 function removeMessage(elementId) {
-  const messageElement = document.getElementById(elementId);
+  const messageElement = document.getElementById(elementId)
   if (messageElement) {
-    messageElement.remove();
+    messageElement.remove()
   }
 }
+
 async function getGeminiResponse(prompt) {
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`
   const requestBody = {
     contents: [{
       parts: [{
         text: prompt
       }]
     }]
-  };
+  }
   const response = await fetch(apiUrl, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/json'
     },
-    body: JSON.stringify(requestBody),
-  });
-  if (!response.ok == true) {
-    const errorData = await response.json();
-    let errorMessage = `API request failed with status ${response.status}`;
+    body: JSON.stringify(requestBody)
+  })
+  if (!response.ok) {
+    const errorData = await response.json()
+    let errorMessage = `API request failed with status ${response.status}`
     if (errorData && errorData.error && errorData.error.message) {
-      errorMessage += `: ${errorData.error.message}`;
+      errorMessage += `: ${errorData.error.message}`
     }
-    throw new Error(errorMessage);
+    throw new Error(errorMessage)
   }
-  const data = await response.json();
+  const data = await response.json()
   if (data.candidates && data.candidates.length > 0 &&
     data.candidates[0].content && data.candidates[0].content.parts &&
     data.candidates[0].content.parts.length > 0) {
-    return data.candidates[0].content.parts[0].text;
+    return data.candidates[0].content.parts[0].text
   } else if (data.promptFeedback && data.promptFeedback.blockReason) {
-    return `Response was blocked by the API: ${data.promptFeedback.blockReason}. ${(data.promptFeedback.safetyRatings || []).map(r => `${r.category}: ${r.probability}`).join(', ')}`;
+    return `Response was blocked by the API: ${data.promptFeedback.blockReason}. ${(data.promptFeedback.safetyRatings || []).map(r => `${r.category}: ${r.probability}`).join(', ')}`
   } else {
-    console.warn('Unexpected API response structure:', data);
-    return 'Received an empty or unexpected response from Jarvis.';
+    console.warn('Unexpected API response structure:', data)
+    return 'Received an empty or unexpected response from Jarvis.'
   }
 }
