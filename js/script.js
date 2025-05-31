@@ -1,7 +1,7 @@
 /* Created by: yi.zhou and Emre
-* Created on: May 2025
-* This file contains the JS for index.html
-*/
+ * Created on: May 2025
+ * This file contains the JS for index.html
+ */
 'use strict'
 
 const chatArea = document.getElementById('chat-area')
@@ -9,22 +9,24 @@ const chatForm = document.getElementById('chat-form')
 const userInput = document.getElementById('user-input')
 const apiKey = 'AIzaSyCfS7TjJLVIP557y5rwqPAH9YGWZj5EtUs'
 
-function toggleTheme() { 
+function toggleTheme() {
   document.body.classList.toggle('dark-theme')
 }
-document.getElementById('btn-toggle').addEventListener('click',()=>{
+
+document.getElementById('btn-toggle').addEventListener('click', () => {
   toggleTheme()
 })
+
 chatForm.addEventListener('submit', async (event) => {
   event.preventDefault()
   const userMessageText = userInput.value.trim()
   if (userMessageText) {
-    appendMessage(userMessageText, 'user', 'enter') 
+    appendMessage(userMessageText, 'user', 'enter')
     userInput.value = ''
     userInput.style.height = 'auto'
     userInput.style.overflowY = 'hidden'
     const typingIndicatorId = 'typing-indicator-' + Date.now()
-    appendMessage('Jarvis is thinking...', 'bot', typingIndicatorId) 
+    appendMessage('Jarvis is thinking...', 'bot', typingIndicatorId)
     try {
       const geminiResponse = await getGeminiResponse(userMessageText)
       removeMessage(typingIndicatorId)
@@ -48,28 +50,34 @@ function appendMessage(text, sender, elementId = null) {
   chatArea.scrollTop = chatArea.scrollHeight
 }
 
-function removeMessage(elementId) { 
+function removeMessage(elementId) {
   const messageElement = document.getElementById(elementId)
   if (messageElement) {
     messageElement.remove()
   }
 }
 
-async function getGeminiResponse(prompt) { 
+async function getGeminiResponse(prompt) {
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`
+
   const requestBody = {
-    contents: [{
-      parts: [{
-        text: prompt
-      }]
-    }]
+    contents: [
+      {
+        parts: [
+          {
+            text: prompt
+          }
+        ]
+      }
+    ]
   }
+
   const response = await fetch(apiUrl, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json' 
+      'Content-Type': 'application/json'
     },
-    body: JSON.stringify(requestBody) 
+    body: JSON.stringify(requestBody)
   })
 
   if (!response.ok) {
@@ -80,10 +88,16 @@ async function getGeminiResponse(prompt) {
     }
     throw new Error(errorMessage)
   }
+
   const data = await response.json()
-  if (data.candidates && data.candidates.length > 0 &&
-    data.candidates[0].content && data.candidates[0].content.parts &&
-    data.candidates[0].content.parts.length > 0) {
+
+  if (
+    data.candidates &&
+    data.candidates.length > 0 &&
+    data.candidates[0].content &&
+    data.candidates[0].content.parts &&
+    data.candidates[0].content.parts.length > 0
+  ) {
     return data.candidates[0].content.parts[0].text
   } else if (data.promptFeedback && data.promptFeedback.blockReason) {
     return `Response was blocked by the API: ${data.promptFeedback.blockReason}. ${(data.promptFeedback.safetyRatings || []).map(r => `${r.category}: ${r.probability}`).join(', ')}`
