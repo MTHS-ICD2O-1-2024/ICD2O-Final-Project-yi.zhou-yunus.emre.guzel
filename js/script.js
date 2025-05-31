@@ -8,7 +8,7 @@ const chatForm = document.getElementById('chat-form')
 const userInput = document.getElementById('user-input')
 const apiKey = 'AIzaSyCfS7TjJLVIP557y5rwqPAH9YGWZj5EtUs'
 
-function toggleTheme() {
+function toggleTheme() { // Added space
   document.body.classList.toggle('dark-theme')
 }
 
@@ -34,7 +34,7 @@ chatForm.addEventListener('submit', async (event) => {
   }
 })
 
-function appendMessage(text, sender, elementId = null) {
+function appendMessage(text, sender, elementId = null) { // Added space
   const messageDiv = document.createElement('div')
   messageDiv.classList.add('chat-message', `${sender}-message`)
   if (elementId) {
@@ -45,14 +45,14 @@ function appendMessage(text, sender, elementId = null) {
   chatArea.scrollTop = chatArea.scrollHeight
 }
 
-function removeMessage(elementId) {
+function removeMessage(elementId) { // Added space
   const messageElement = document.getElementById(elementId)
   if (messageElement) {
     messageElement.remove()
   }
 }
 
-async function getGeminiResponse(prompt) {
+async function getGeminiResponse(prompt) { // Added space
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`
   const requestBody = {
     contents: [{
