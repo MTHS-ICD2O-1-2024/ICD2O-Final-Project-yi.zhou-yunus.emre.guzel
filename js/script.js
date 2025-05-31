@@ -3,14 +3,11 @@
 * This file contains the JS for index.html
 */
 'use strict'
+
 const chatArea = document.getElementById('chat-area')
 const chatForm = document.getElementById('chat-form')
 const userInput = document.getElementById('user-input')
 const apiKey = 'AIzaSyCfS7TjJLVIP557y5rwqPAH9YGWZj5EtUs'
-
-function toggleTheme() {
-  document.body.classList.toggle('dark-theme')
-}
 
 chatForm.addEventListener('submit', async (event) => {
   event.preventDefault()
