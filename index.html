@@ -7,7 +7,7 @@
   <meta name="keywords" content="mths, icd2o" />
   <meta name="author" content="yi.zhou" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="./css/style-2.css" />
+  <link rel="stylesheet" href="./css/style.css" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
   <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css" />
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
@@ -18,48 +18,24 @@
 </head>
 
 <body>
-  <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
-  <script src="./js/script.js"></script>
-  <div class="mdl-layout mdl-js-layout mdl-layout-fixed-header">
-    <header class="mdl-layout__header">
-      <div class="mdl-layout__header-row">
-        <span class="mdl-layout-title">JarvisBot</span>
-      </div>
-      <button class="color-toggle-btn" title="color theme"></button>
-    </header>
-    <main class="mdl-layout__content">
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <div class="page-content">How may I help you?</div>
-      <br />
-      <br />
-      <br />
-      <br />
-      <form class="mdl-inputbox">
-        <div class="mdl-textfield mdl-js-textfield">
-          <input class="mdl-textfield__input" type="search" id="user-input">
-          <label class="mdl-textfield__label" for="user-input">Ask JarvisBot</label>
-        </div>
+  <script src="Js/script.js"></script>
+  <body class="jarvis-bot">
+    <h1 class="jarvis-bot-title">JarvisBot</h1>
+    <button class="change-theme" onclick="toggleTheme()">Change Theme</button>
+
+    <div class="chat-area" id="chat-area">
+      <div class="chat-message bot-message">How may I help you?</div>
+    </div>
+
+    <div class="input-container">
+      <form id="chat-form" style="display: flex; width: 100%; align-items: flex-end;">
+        <textarea placeholder="Ask Jarvisbot..." class="jarvis-bot-input" id="user-input" rows="1"></textarea>
+        <button type="submit" id="send"><i class="fa-solid fa-share"></i></button>
       </form>
-      <br />
-      <div class="page-content-answer">
-        <div id="result"></div>
-      </div>
-    </main>
-  </div>
-</body>
+    </div>
+
+
+    </script>
+  </body>
 
 </html>
