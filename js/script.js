@@ -12,7 +12,9 @@ const apiKey = 'AIzaSyCfS7TjJLVIP557y5rwqPAH9YGWZj5EtUs'
 function toggleTheme() { 
   document.body.classList.toggle('dark-theme')
 }
-
+document.getElementById('btn-toggle').addEventListener('click',()=>{
+  toggleTheme()
+})
 chatForm.addEventListener('submit', async (event) => {
   event.preventDefault()
   const userMessageText = userInput.value.trim()
