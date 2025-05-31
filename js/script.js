@@ -45,6 +45,7 @@ function appendMessage(text, sender, elementId = null) {
   if (elementId) {
     messageDiv.id = elementId
   }
+
   messageDiv.textContent = text
   chatArea.appendChild(messageDiv)
   chatArea.scrollTop = chatArea.scrollHeight
