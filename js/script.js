@@ -1,5 +1,5 @@
-/* 
- * Created by: yi.zhou and Emre 
+/*
+ * Created by: yi.zhou and Emre
  * Created on: May 2025
  * This file contains the JS for index.html
  */
@@ -47,13 +47,18 @@ chatForm.addEventListener('submit', async (event) => {
       // Handle API error
       removeMessage(typingIndicatorId)
       console.error('Error fetching from Gemini:', error)
-      appendMessage(`Sorry, I encountered an error: ${error.message !== undefined ? error.message : 'Please try again.'}`, 'bot')
+      appendMessage(
+        `Sorry, I encountered an error: ${
+          error.message !== undefined ? error.message : 'Please try again.'
+        }`,
+        'bot'
+      )
     }
   }
 })
 
 // Add a message to the chat area
-function appendMessage(text, sender, elementId = null) {
+function appendMessage (text, sender, elementId = null) {
   const messageDiv = document.createElement('div')
   messageDiv.classList.add('chat-message', `${sender}-message`)
 
@@ -67,7 +72,7 @@ function appendMessage(text, sender, elementId = null) {
 }
 
 // Remove a message by its ID
-function removeMessage(elementId) {
+function removeMessage (elementId) {
   const messageElement = document.getElementById(elementId)
   if (messageElement !== null) {
     messageElement.remove()
@@ -75,7 +80,7 @@ function removeMessage(elementId) {
 }
 
 // Call Gemini API to get bot response
-async function getGeminiResponse(prompt) {
+async function getGeminiResponse (prompt) {
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`
 
   const requestBody = {
@@ -96,7 +101,11 @@ async function getGeminiResponse(prompt) {
     const errorData = await response.json()
     let errorMessage = `API request failed with status ${response.status}`
 
-    if (errorData !== null && errorData.error !== undefined && errorData.error.message !== undefined) {
+    if (
+      errorData !== null &&
+      errorData.error !== undefined &&
+      errorData.error.message !== undefined
+    ) {
       errorMessage += `: ${errorData.error.message}`
     }
 
@@ -106,10 +115,10 @@ async function getGeminiResponse(prompt) {
   const data = await response.json()
 
   if (
-    Array.isArray(data.candidates) === true &&
+    Array.isArray(data.candidates) == true &&
     data.candidates.length > 0 &&
     data.candidates[0].content !== undefined &&
-    Array.isArray(data.candidates[0].content.parts) === true &&
+    Array.isArray(data.candidates[0].content.parts) == true &&
     data.candidates[0].content.parts.length > 0
   ) {
     return data.candidates[0].content.parts[0].text
@@ -118,7 +127,10 @@ async function getGeminiResponse(prompt) {
     data.promptFeedback.blockReason !== undefined
   ) {
     return `Response was blocked by the API: ${data.promptFeedback.blockReason}. ${
-      (Array.isArray(data.promptFeedback.safetyRatings) ? data.promptFeedback.safetyRatings : []).map(r => `${r.category}: ${r.probability}`).join(', ')
+      (Array.isArray(data.promptFeedback.safetyRatings)
+        ? data.promptFeedback.safetyRatings
+        : []
+      ).map((r) => `${r.category}: ${r.probability}`).join(', ')
     }`
   } else {
     console.warn('Unexpected API response structure:', data)
