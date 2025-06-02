@@ -115,10 +115,10 @@ async function getGeminiResponse (prompt) {
   const data = await response.json()
 
   if (
-    Array.isArray(data.candidates) == true &&
+    Array.isArray(data.candidates) === true &&
     data.candidates.length > 0 &&
     data.candidates[0].content !== undefined &&
-    Array.isArray(data.candidates[0].content.parts) == true &&
+    Array.isArray(data.candidates[0].content.parts) === true &&
     data.candidates[0].content.parts.length > 0
   ) {
     return data.candidates[0].content.parts[0].text
