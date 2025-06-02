@@ -48,8 +48,7 @@ chatForm.addEventListener('submit', async (event) => {
       removeMessage(typingIndicatorId)
       console.error('Error fetching from Gemini:', error)
       appendMessage(
-        `Sorry, I encountered an error: ${
-          error.message !== undefined ? error.message : 'Please try again.'
+        `Sorry, I encountered an error: ${error.message !== undefined ? error.message : 'Please try again.'
         }`,
         'bot'
       )
@@ -58,7 +57,7 @@ chatForm.addEventListener('submit', async (event) => {
 })
 
 // Add a message to the chat area
-function appendMessage (text, sender, elementId = null) {
+function appendMessage(text, sender, elementId = null) {
   const messageDiv = document.createElement('div')
   messageDiv.classList.add('chat-message', `${sender}-message`)
 
@@ -72,7 +71,7 @@ function appendMessage (text, sender, elementId = null) {
 }
 
 // Remove a message by its ID
-function removeMessage (elementId) {
+function removeMessage(elementId) {
   const messageElement = document.getElementById(elementId)
   if (messageElement !== null) {
     messageElement.remove()
@@ -80,7 +79,7 @@ function removeMessage (elementId) {
 }
 
 // Call Gemini API to get bot response
-async function getGeminiResponse (prompt) {
+async function getGeminiResponse(prompt) {
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`
 
   const requestBody = {
@@ -115,25 +114,28 @@ async function getGeminiResponse (prompt) {
   const data = await response.json()
 
   if (
-    Array.isArray(data.candidates) === true &&
+    Array.isArray(data.candidates) &&
     data.candidates.length > 0 &&
-    data.candidates[0].content !== undefined &&
-    Array.isArray(data.candidates[0].content.parts) === true &&
+    data.candidates[0].content &&
+    Array.isArray(data.candidates[0].content.parts) &&
     data.candidates[0].content.parts.length > 0
   ) {
-    return data.candidates[0].content.parts[0].text
+    return data.candidates[0].content.parts[0].text;
   } else if (
-    data.promptFeedback !== undefined &&
-    data.promptFeedback.blockReason !== undefined
+    data.promptFeedback &&
+    data.promptFeedback.blockReason
   ) {
-    return `Response was blocked by the API: ${data.promptFeedback.blockReason}. ${
-      (Array.isArray(data.promptFeedback.safetyRatings)
-        ? data.promptFeedback.safetyRatings
-        : []
-      ).map((r) => `${r.category}: ${r.probability}`).join(', ')
-    }`
+    let ratings = Array.isArray(data.promptFeedback.safetyRatings)
+      ? data.promptFeedback.safetyRatings
+      : [];
+
+    let ratingText = ratings.map(function (r) {
+      return r.category + ': ' + r.probability;
+    }).join(', ');
+
+    return 'Response was blocked by the API: ' + data.promptFeedback.blockReason + '. ' + ratingText;
   } else {
-    console.warn('Unexpected API response structure:', data)
+    console.warn('Unexpected API response structure:', data);
     return 'Received an empty or unexpected response from Jarvis.'
   }
 }
