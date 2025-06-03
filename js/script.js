@@ -9,6 +9,7 @@
 const chatArea = document.getElementById('chat-area')
 const chatForm = document.getElementById('chat-form')
 const userInput = document.getElementById('user-input')
+const sendButton = document.getElementById('send')
 
 // Gemini API Key (replace with secure storage in production)
 const apiKey = 'AIzaSyCfS7TjJLVIP557y5rwqPAH9YGWZj5EtUs'
@@ -17,6 +18,18 @@ const apiKey = 'AIzaSyCfS7TjJLVIP557y5rwqPAH9YGWZj5EtUs'
 document.getElementById('btn-toggle').addEventListener('click', () => {
   document.body.classList.toggle('dark-theme')
 })
+
+// Press Enter to send the message
+userInput.addEventListener("keyup", function(event) {
+    if (event.key == "Enter") {
+      if (event.shiftKey){
+        event.preventDefault();
+      } else {
+        event.preventDefault(); 
+        chatForm.dispatchEvent(new Event('submit')); 
+    }
+  }
+});
 
 // Handle form submission (user sends a message)
 chatForm.addEventListener('submit', async (event) => {
