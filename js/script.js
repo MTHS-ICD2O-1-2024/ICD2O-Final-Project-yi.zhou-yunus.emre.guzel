@@ -1,4 +1,4 @@
-/*
+/* 
  * Created by: yi.zhou and Emre
  * Created on: May 2025
  * This file contains the JS for index.html
@@ -79,8 +79,8 @@ function appendMessage (text, sender, elementId = null) {
   }
 
   const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g
-  let match;
-  let lastIndex = 0;
+  let match
+  let lastIndex = 0
   let contentHtml = ''
 
   while ((match = codeBlockRegex.exec(text)) !== null) {
@@ -89,19 +89,15 @@ function appendMessage (text, sender, elementId = null) {
     const language = match[1] || 'plaintext'
     const code = match[2].trim()
 
-    contentHtml += `<pre><code class="language-${language}">${escapeHtml(code)}</code></pre>`;
+    contentHtml += `<pre><code class="language-${language}">${escapeHtml(code)}</code></pre>`
     lastIndex = codeBlockRegex.lastIndex
   }
 
   contentHtml += `<p>${text.substring(lastIndex)}</p>`
 
-  messageDiv.innerHTML = contentHtml;
+  messageDiv.innerHTML = contentHtml
   chatArea.appendChild(messageDiv)
   chatArea.scrollTop = chatArea.scrollHeight
-
-  messageDiv.querySelectorAll('pre code').forEach((block) => {
-    hljs.highlightElement(block);
-  });
 }
 
 // Remove a message by its ID
@@ -113,15 +109,15 @@ function removeMessage (elementId) {
 }
 
 // Helper function to escape HTML entities in the code
-function escapeHtml(text) {
+function escapeHtml (text) {
   const map = {
     '&': '&amp;',
     '<': '&lt;',
     '>': '&gt;',
     '"': '&quot;',
     "'": '&#039;'
-  };
-  return text.replace(/[&<>"']/g, function(m) { return map[m]; })
+  }
+  return text.replace(/[&<>"']/g, function (m) { return map[m] })
 }
 
 // Call Gemini API to get bot response
