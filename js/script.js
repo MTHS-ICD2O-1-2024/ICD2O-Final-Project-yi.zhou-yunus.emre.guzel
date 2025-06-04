@@ -9,7 +9,6 @@
 const chatArea = document.getElementById('chat-area')
 const chatForm = document.getElementById('chat-form')
 const userInput = document.getElementById('user-input')
-// const sendButton = document.getElementById('send') // Removed as it's unused
 
 // Gemini API Key (replace with secure storage in production)
 const apiKey = 'AIzaSyCfS7TjJLVIP557y5rwqPAH9YGWZj5EtUs'
@@ -79,9 +78,30 @@ function appendMessage (text, sender, elementId = null) {
     messageDiv.id = elementId
   }
 
-  messageDiv.textContent = text
+  const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g
+  let match;
+  let lastIndex = 0;
+  let contentHtml = ''
+
+  while ((match = codeBlockRegex.exec(text)) !== null) {
+    contentHtml += `<p>${text.substring(lastIndex, match.index)}</p>`
+
+    const language = match[1] || 'plaintext'
+    const code = match[2].trim()
+
+    contentHtml += `<pre><code class="language-${language}">${escapeHtml(code)}</code></pre>`;
+    lastIndex = codeBlockRegex.lastIndex
+  }
+
+  contentHtml += `<p>${text.substring(lastIndex)}</p>`
+
+  messageDiv.innerHTML = contentHtml;
   chatArea.appendChild(messageDiv)
   chatArea.scrollTop = chatArea.scrollHeight
+
+  messageDiv.querySelectorAll('pre code').forEach((block) => {
+    hljs.highlightElement(block);
+  });
 }
 
 // Remove a message by its ID
@@ -90,6 +110,18 @@ function removeMessage (elementId) {
   if (messageElement !== null) {
     messageElement.remove()
   }
+}
+
+// Helper function to escape HTML entities in the code
+function escapeHtml(text) {
+  const map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+  return text.replace(/[&<>"']/g, function(m) { return map[m]; })
 }
 
 // Call Gemini API to get bot response
@@ -138,7 +170,7 @@ async function getGeminiResponse (prompt) {
   } else if (
     data.promptFeedback !== undefined &&
     data.promptFeedback.blockReason !== undefined
-  ) { // Fixed: Added opening brace for else if block
+  ) {
     return `Response was blocked by the API: ${data.promptFeedback.blockReason}. ${
       (Array.isArray(data.promptFeedback.safetyRatings)
         ? data.promptFeedback.safetyRatings
