@@ -9,13 +9,27 @@
 const chatArea = document.getElementById('chat-area')
 const chatForm = document.getElementById('chat-form')
 const userInput = document.getElementById('user-input')
+// const sendButton = document.getElementById('send') // Removed as it's unused
 
 // Gemini API Key (replace with secure storage in production)
 const apiKey = 'AIzaSyCfS7TjJLVIP557y5rwqPAH9YGWZj5EtUs'
 
+
 // Toggle dark theme when button is clicked
 document.getElementById('btn-toggle').addEventListener('click', () => {
   document.body.classList.toggle('dark-theme')
+})
+
+// Press Enter to send the message
+userInput.addEventListener('keyup', function (event) {
+  if (event.key == 'Enter') {
+    if (event.shiftKey) {
+      event.preventDefault()
+    } else {
+      event.preventDefault()
+      chatForm.dispatchEvent(new Event('submit'))
+    }
+  }
 })
 
 // Handle form submission (user sends a message)
@@ -48,8 +62,7 @@ chatForm.addEventListener('submit', async (event) => {
       removeMessage(typingIndicatorId)
       console.error('Error fetching from Gemini:', error)
       appendMessage(
-        `Sorry, I encountered an error: ${
-          error.message !== undefined ? error.message : 'Please try again.'
+        `Sorry, I encountered an error: ${error.message !== undefined ? error.message : 'Please try again.'
         }`,
         'bot'
       )
@@ -58,7 +71,7 @@ chatForm.addEventListener('submit', async (event) => {
 })
 
 // Add a message to the chat area
-function appendMessage (text, sender, elementId = null) {
+function appendMessage(text, sender, elementId = null) {
   const messageDiv = document.createElement('div')
   messageDiv.classList.add('chat-message', `${sender}-message`)
 
@@ -72,7 +85,7 @@ function appendMessage (text, sender, elementId = null) {
 }
 
 // Remove a message by its ID
-function removeMessage (elementId) {
+function removeMessage(elementId) {
   const messageElement = document.getElementById(elementId)
   if (messageElement !== null) {
     messageElement.remove()
@@ -80,7 +93,7 @@ function removeMessage (elementId) {
 }
 
 // Call Gemini API to get bot response
-async function getGeminiResponse (prompt) {
+async function getGeminiResponse(prompt) {
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`
 
   const requestBody = {
@@ -115,23 +128,22 @@ async function getGeminiResponse (prompt) {
   const data = await response.json()
 
   if (
-    Array.isArray(data.candidates) === true &&
+    Array.isArray(data.candidates) == true &&
     data.candidates.length > 0 &&
     data.candidates[0].content !== undefined &&
-    Array.isArray(data.candidates[0].content.parts) === true &&
+    Array.isArray(data.candidates[0].content.parts) == true &&
     data.candidates[0].content.parts.length > 0
   ) {
     return data.candidates[0].content.parts[0].text
   } else if (
     data.promptFeedback !== undefined &&
     data.promptFeedback.blockReason !== undefined
-  ) {
-    return `Response was blocked by the API: ${data.promptFeedback.blockReason}. ${
-      (Array.isArray(data.promptFeedback.safetyRatings)
+  ) { // Fixed: Added opening brace for else if block
+    return `Response was blocked by the API: ${data.promptFeedback.blockReason}. ${(Array.isArray(data.promptFeedback.safetyRatings)
         ? data.promptFeedback.safetyRatings
         : []
       ).map((r) => `${r.category}: ${r.probability}`).join(', ')
-    }`
+      }`
   } else {
     console.warn('Unexpected API response structure:', data)
     return 'Received an empty or unexpected response from Jarvis.'
