@@ -1,4 +1,4 @@
-/* 
+/*
  * Created by: yi.zhou and Emre
  * Created on: May 2025
  * This file contains the JS for index.html
@@ -20,7 +20,7 @@ document.getElementById('btn-toggle').addEventListener('click', () => {
 
 // Press Enter to send the message
 userInput.addEventListener('keyup', function (event) {
-  if (event.key === 'Enter') {
+  if (event.key == 'Enter') {
     if (event.shiftKey) {
       event.preventDefault()
     } else {
