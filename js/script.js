@@ -20,7 +20,7 @@ document.getElementById('btn-toggle').addEventListener('click', () => {
 
 // Press Enter to send the message
 userInput.addEventListener('keyup', function (event) {
-  if (event.key == 'Enter') {
+  if (event.key === 'Enter') {
     if (event.shiftKey) {
       event.preventDefault()
     } else {
