@@ -18,6 +18,18 @@ document.getElementById('btn-toggle').addEventListener('click', () => {
   document.body.classList.toggle('dark-theme')
 })
 
+// Press Enter to send the message
+userInput.addEventListener('keyup', function (event) {
+  if (event.key === 'Enter') {
+    if (event.shiftKey) {
+      event.preventDefault()
+    } else {
+      event.preventDefault()
+      chatForm.dispatchEvent(new Event('submit'))
+    }
+  }
+})
+
 // Handle form submission (user sends a message)
 chatForm.addEventListener('submit', async (event) => {
   event.preventDefault()
@@ -66,7 +78,24 @@ function appendMessage (text, sender, elementId = null) {
     messageDiv.id = elementId
   }
 
-  messageDiv.textContent = text
+  const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g
+  let match
+  let lastIndex = 0
+  let contentHtml = ''
+
+  while ((match = codeBlockRegex.exec(text)) !== null) {
+    contentHtml += `<p>${text.substring(lastIndex, match.index)}</p>`
+
+    const language = match[1] || 'plaintext'
+    const code = match[2].trim()
+
+    contentHtml += `<pre><code class="language-${language}">${escapeHtml(code)}</code></pre>`
+    lastIndex = codeBlockRegex.lastIndex
+  }
+
+  contentHtml += `<p>${text.substring(lastIndex)}</p>`
+
+  messageDiv.innerHTML = contentHtml
   chatArea.appendChild(messageDiv)
   chatArea.scrollTop = chatArea.scrollHeight
 }
@@ -77,6 +106,18 @@ function removeMessage (elementId) {
   if (messageElement !== null) {
     messageElement.remove()
   }
+}
+
+// Helper function to escape HTML entities in the code
+function escapeHtml (text) {
+  const map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  }
+  return text.replace(/[&<>"']/g, function (m) { return map[m] })
 }
 
 // Call Gemini API to get bot response
