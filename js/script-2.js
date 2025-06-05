@@ -78,13 +78,18 @@ function appendMessage (text, sender, elementId = null) {
     messageDiv.id = elementId
   }
 
+  let processedText = text;
+
+  processedText = processedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  processedText = processedText.replace(/\*(.*?)\*/g, '<em>$1</em>');
+
   const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g
   let match
   let lastIndex = 0
   let contentHtml = ''
 
-  while ((match = codeBlockRegex.exec(text)) !== null) {
-    contentHtml += `<p>${text.substring(lastIndex, match.index)}</p>`
+  while ((match = codeBlockRegex.exec(processedText)) !== null) {
+    contentHtml += `<p>${processedText.substring(lastIndex, match.index)}</p>`
 
     const language = match[1] || 'plaintext'
     const code = match[2].trim()
@@ -93,7 +98,7 @@ function appendMessage (text, sender, elementId = null) {
     lastIndex = codeBlockRegex.lastIndex
   }
 
-  contentHtml += `<p>${text.substring(lastIndex)}</p>`
+  contentHtml += `<p>${processedText.substring(lastIndex)}</p>`
 
   messageDiv.innerHTML = contentHtml
   chatArea.appendChild(messageDiv)
