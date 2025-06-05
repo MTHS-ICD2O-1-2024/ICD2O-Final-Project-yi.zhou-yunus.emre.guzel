@@ -31,7 +31,7 @@ userInput.addEventListener('keyup', function (event) {
 })
 
 // Handle form submission (user sends a message)
-chatForm.addEventListener('submit', async (event) => {
+chatForm.addEventListener('submit', async function (event) {
   event.preventDefault()
   const userMessageText = userInput.value.trim()
 
@@ -182,7 +182,7 @@ async function getGeminiResponse(prompt) {
     return 'Received an empty or unexpected response from Jarvis.'
   }
 }
-// 
+
 async function handleWeatherPrompt(userText) {
   const cityMatch = userText.match(/weather in (.+)/i)
   if (!cityMatch) return null
@@ -202,12 +202,12 @@ async function handleWeatherPrompt(userText) {
     const rise = new Date(res.sys.sunrise * 1000)
     const set = new Date(res.sys.sunset * 1000)
 
-    const weatherMsg = `🌡️ Temp: ${temp}°C\n🌬️ Pressure: ${pressure} hPa (${pressureAtm} atm)\n🌅 Sunrise: ${rise.toLocaleTimeString()}\n🌇 Sunset: ${set.toLocaleTimeString()}`
+    const weatherMsg = ` Temp: ${temp}°C\n Pressure: ${pressure} hPa (${pressureAtm} atm)\n Sunrise: ${rise.toLocaleTimeString()}\n Sunset: ${set.toLocaleTimeString()}`
 
     const fullMsg = `**** ${res.name} ****\nTemperature: ${temp}°C\nHumidity: ${res.main.humidity}%\nWeather: ${res.weather[0].description}\nPressure: ${pressure} hPa (${pressureAtm} atm)\nSunrise: ${rise.toLocaleTimeString()}\nSunset: ${set.toLocaleTimeString()}\nCountry: ${res.sys.country}`
 
     return `${weatherMsg}\n\n${fullMsg}`
   } catch (error) {
-    return '❌ Failed to get weather info. Please check the city name.'
+    return ' Failed to get weather info. Please check the city name.'
   }
 }
