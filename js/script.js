@@ -49,6 +49,14 @@ chatForm.addEventListener('submit', async (event) => {
     appendMessage('Jarvis is thinking...', 'bot', typingIndicatorId)
 
     try {
+      // Check if it's a weather question
+      if (userMessageText.toLowerCase().startsWith('weather in')) {
+        const weatherReply = await handleWeatherPrompt(userMessageText)
+        removeMessage(typingIndicatorId)
+        appendMessage(weatherReply, 'bot')
+        return
+      }
+
       // Get response from Gemini API
       const geminiResponse = await getGeminiResponse(userMessageText)
 
@@ -60,9 +68,7 @@ chatForm.addEventListener('submit', async (event) => {
       removeMessage(typingIndicatorId)
       console.error('Error fetching from Gemini:', error)
       appendMessage(
-        `Sorry, I encountered an error: ${
-          error.message !== undefined ? error.message : 'Please try again.'
-        }`,
+        `Sorry, I encountered an error: ${error.message !== undefined ? error.message : 'Please try again.'}`,
         'bot'
       )
     }
@@ -70,7 +76,7 @@ chatForm.addEventListener('submit', async (event) => {
 })
 
 // Add a message to the chat area
-function appendMessage (text, sender, elementId = null) {
+function appendMessage(text, sender, elementId = null) {
   const messageDiv = document.createElement('div')
   messageDiv.classList.add('chat-message', `${sender}-message`)
 
@@ -101,7 +107,7 @@ function appendMessage (text, sender, elementId = null) {
 }
 
 // Remove a message by its ID
-function removeMessage (elementId) {
+function removeMessage(elementId) {
   const messageElement = document.getElementById(elementId)
   if (messageElement !== null) {
     messageElement.remove()
@@ -109,7 +115,7 @@ function removeMessage (elementId) {
 }
 
 // Helper function to escape HTML entities in the code
-function escapeHtml (text) {
+function escapeHtml(text) {
   const map = {
     '&': '&amp;',
     '<': '&lt;',
@@ -121,7 +127,7 @@ function escapeHtml (text) {
 }
 
 // Call Gemini API to get bot response
-async function getGeminiResponse (prompt) {
+async function getGeminiResponse(prompt) {
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`
 
   const requestBody = {
@@ -138,7 +144,7 @@ async function getGeminiResponse (prompt) {
     body: JSON.stringify(requestBody)
   })
 
-  if (response.ok !== true) {
+  if (!response.ok) {
     const errorData = await response.json()
     let errorMessage = `API request failed with status ${response.status}`
 
@@ -156,25 +162,52 @@ async function getGeminiResponse (prompt) {
   const data = await response.json()
 
   if (
-    Array.isArray(data.candidates) === true &&
+    Array.isArray(data.candidates) &&
     data.candidates.length > 0 &&
-    data.candidates[0].content !== undefined &&
-    Array.isArray(data.candidates[0].content.parts) === true &&
+    data.candidates[0].content &&
+    Array.isArray(data.candidates[0].content.parts) &&
     data.candidates[0].content.parts.length > 0
   ) {
     return data.candidates[0].content.parts[0].text
   } else if (
-    data.promptFeedback !== undefined &&
-    data.promptFeedback.blockReason !== undefined
+    data.promptFeedback &&
+    data.promptFeedback.blockReason
   ) {
-    return `Response was blocked by the API: ${data.promptFeedback.blockReason}. ${
-      (Array.isArray(data.promptFeedback.safetyRatings)
-        ? data.promptFeedback.safetyRatings
-        : []
-      ).map((r) => `${r.category}: ${r.probability}`).join(', ')
-    }`
+    return `Response was blocked by the API: ${data.promptFeedback.blockReason}. ${(Array.isArray(data.promptFeedback.safetyRatings)
+      ? data.promptFeedback.safetyRatings
+      : []
+    ).map((r) => `${r.category}: ${r.probability}`).join(', ')}`
   } else {
     console.warn('Unexpected API response structure:', data)
     return 'Received an empty or unexpected response from Jarvis.'
+  }
+}
+// 
+async function handleWeatherPrompt(userText) {
+  const cityMatch = userText.match(/weather in (.+)/i)
+  if (!cityMatch) return null
+
+  const city = cityMatch[1]
+  const weatherApiKey = 'a90c5e8b12882d2c47ba7ab340cf3b11'
+  const requestUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${weatherApiKey}&units=metric`
+
+  try {
+    const response = await fetch(requestUrl)
+    if (!response.ok) throw new Error('Weather API error')
+
+    const res = await response.json()
+    const temp = Math.round(res.main.temp_min)
+    const pressure = res.main.pressure
+    const pressureAtm = (pressure / 1013.25).toFixed(2)
+    const rise = new Date(res.sys.sunrise * 1000)
+    const set = new Date(res.sys.sunset * 1000)
+
+    const weatherMsg = `🌡️ Temp: ${temp}°C\n🌬️ Pressure: ${pressure} hPa (${pressureAtm} atm)\n🌅 Sunrise: ${rise.toLocaleTimeString()}\n🌇 Sunset: ${set.toLocaleTimeString()}`
+
+    const fullMsg = `**** ${res.name} ****\nTemperature: ${temp}°C\nHumidity: ${res.main.humidity}%\nWeather: ${res.weather[0].description}\nPressure: ${pressure} hPa (${pressureAtm} atm)\nSunrise: ${rise.toLocaleTimeString()}\nSunset: ${set.toLocaleTimeString()}\nCountry: ${res.sys.country}`
+
+    return `${weatherMsg}\n\n${fullMsg}`
+  } catch (error) {
+    return '❌ Failed to get weather info. Please check the city name.'
   }
 }
