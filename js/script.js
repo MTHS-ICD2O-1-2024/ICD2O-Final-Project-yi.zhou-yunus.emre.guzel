@@ -1,8 +1,11 @@
-/*
+/* 
  * Created by: yi.zhou and Emre
  * Created on: May 2025
  * This file contains the JS for index.html
  */
+
+/* global hljs */
+
 'use strict'
 
 // Get DOM elements
@@ -18,7 +21,7 @@ document.getElementById('btn-toggle').addEventListener('click', () => {
   document.body.classList.toggle('dark-theme')
 })
 
-// Press Enter to send the message
+// Press Enter to send the message, Shift+Enter for new line
 userInput.addEventListener('keyup', function (event) {
   if (event.key === 'Enter') {
     if (event.shiftKey) {
@@ -84,13 +87,19 @@ function appendMessage(text, sender, elementId = null) {
     messageDiv.id = elementId
   }
 
+  // Markdown-like formatting for **bold** and *italic*
+  let processedText = text
+  processedText = processedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+  processedText = processedText.replace(/\*(.*?)\*/g, '<em>$1</em>')
+
+  // Handle code blocks with syntax highlighting
   const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g
   let match
   let lastIndex = 0
   let contentHtml = ''
 
-  while ((match = codeBlockRegex.exec(text)) !== null) {
-    contentHtml += `<p>${text.substring(lastIndex, match.index)}</p>`
+  while ((match = codeBlockRegex.exec(processedText)) !== null) {
+    contentHtml += `<p>${processedText.substring(lastIndex, match.index)}</p>`
 
     const language = match[1] || 'plaintext'
     const code = match[2].trim()
@@ -99,11 +108,15 @@ function appendMessage(text, sender, elementId = null) {
     lastIndex = codeBlockRegex.lastIndex
   }
 
-  contentHtml += `<p>${text.substring(lastIndex)}</p>`
+  contentHtml += `<p>${processedText.substring(lastIndex)}</p>`
 
   messageDiv.innerHTML = contentHtml
   chatArea.appendChild(messageDiv)
   chatArea.scrollTop = chatArea.scrollHeight
+
+  messageDiv.querySelectorAll('pre code').forEach((block) => {
+    hljs.highlightElement(block)
+  })
 }
 
 // Remove a message by its ID
@@ -183,31 +196,39 @@ async function getGeminiResponse(prompt) {
   }
 }
 
+// Handle weather-related prompts separately
 async function handleWeatherPrompt(userText) {
   const cityMatch = userText.match(/weather in (.+)/i)
   if (!cityMatch) return null
 
-  const city = cityMatch[1]
+  const city = cityMatch[1].trim()
+
   const weatherApiKey = 'a90c5e8b12882d2c47ba7ab340cf3b11'
-  const requestUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${weatherApiKey}&units=metric`
+  const requestUrl = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${weatherApiKey}&units=metric`
 
   try {
     const response = await fetch(requestUrl)
-    if (!response.ok) throw new Error('Weather API error')
-
     const res = await response.json()
-    const temp = Math.round(res.main.temp_min)
+
+    if (!response.ok) {
+      if (res.cod === '404') {
+        return 'City not found. Please check the city name and try again.'
+      }
+      throw new Error(res.message || 'Weather API error')
+    }
+
+    const temp = Math.round(res.main.temp) // current temp, not min temp
     const pressure = res.main.pressure
     const pressureAtm = (pressure / 1013.25).toFixed(2)
     const rise = new Date(res.sys.sunrise * 1000)
     const set = new Date(res.sys.sunset * 1000)
 
-    const weatherMsg = ` Temp: ${temp}°C\n Pressure: ${pressure} hPa (${pressureAtm} atm)\n Sunrise: ${rise.toLocaleTimeString()}\n Sunset: ${set.toLocaleTimeString()}`
+    const weatherMsg = `Temp: ${temp}°C\nPressure: ${pressure} hPa (${pressureAtm} atm)\nSunrise: ${rise.toLocaleTimeString()}\nSunset: ${set.toLocaleTimeString()}`
 
-    const fullMsg = `**** ${res.name} ****\nTemperature: ${temp}°C\nHumidity: ${res.main.humidity}%\nWeather: ${res.weather[0].description}\nPressure: ${pressure} hPa (${pressureAtm} atm)\nSunrise: ${rise.toLocaleTimeString()}\nSunset: ${set.toLocaleTimeString()}\nCountry: ${res.sys.country}`
+    const fullMsg = `**** ${res.name}, ${res.sys.country} ****\nTemperature: ${temp}°C\nHumidity: ${res.main.humidity}%\nWeather: ${res.weather[0].description}\nPressure: ${pressure} hPa (${pressureAtm} atm)\nSunrise: ${rise.toLocaleTimeString()}\nSunset: ${set.toLocaleTimeString()}`
 
     return `${weatherMsg}\n\n${fullMsg}`
   } catch (error) {
-    return ' Failed to get weather info. Please check the city name.'
+    return `Failed to get weather info. ${error.message}`
   }
 }
