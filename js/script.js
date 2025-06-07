@@ -1,4 +1,4 @@
-/* 
+/*
  * Created by: yi.zhou and Emre
  * Created on: May 2025
  * This file contains the JS for index.html
