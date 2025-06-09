@@ -68,6 +68,7 @@ function appendMessage (text, sender, elementId = null) {
 
   let processedText = text
 
+  // 这两行会继续将 **粗体** 和 *斜体* 转换为 HTML 标签并去除星号
   processedText = processedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
   processedText = processedText.replace(/\*(.*?)\*/g, '<em>$1</em>')
 
@@ -79,9 +80,10 @@ function appendMessage (text, sender, elementId = null) {
   while ((match = codeBlockRegex.exec(processedText)) !== null) {
     contentHtml += `<p>${processedText.substring(lastIndex, match.index)}</p>`
 
-    const language = match[1] || 'plaintext'
+    const language = match[1] || 'plaintext' // 即使没有高亮，语言信息可能仍然有用
     const code = match[2].trim()
 
+    // 代码块内容仍会以 <pre><code> 标签显示，但不会有语法高亮
     contentHtml += `<pre><code class="language-${language}">${escapeHtml(code)}</code></pre>`
     lastIndex = codeBlockRegex.lastIndex
   }
@@ -92,9 +94,7 @@ function appendMessage (text, sender, elementId = null) {
   chatArea.appendChild(messageDiv)
   chatArea.scrollTop = chatArea.scrollHeight
 
-  messageDiv.querySelectorAll('pre code').forEach((block) => {
-    hljs.highlightElement(block)
-  })
+  // 注意：这里已经移除了调用 hljs.highlightElement(block) 的代码
 }
 
 function removeMessage (elementId) {
