@@ -12,18 +12,20 @@
 const chatArea = document.getElementById('chat-area')
 const chatForm = document.getElementById('chat-form')
 const userInput = document.getElementById('user-input')
+// const sendButton = document.getElementById('send') // Removed as it's unused
 
 // Gemini API Key (replace with secure storage in production)
 const apiKey = 'AIzaSyCfS7TjJLVIP557y5rwqPAH9YGWZj5EtUs'
+
 
 // Toggle dark theme when button is clicked
 document.getElementById('btn-toggle').addEventListener('click', () => {
   document.body.classList.toggle('dark-theme')
 })
 
-// Press Enter to send the message, Shift+Enter for new line
+// Press Enter to send the message
 userInput.addEventListener('keyup', function (event) {
-  if (event.key === 'Enter') {
+  if (event.key == 'Enter') {
     if (event.shiftKey) {
       event.preventDefault()
     } else {
@@ -183,13 +185,14 @@ async function getGeminiResponse(prompt) {
   ) {
     return data.candidates[0].content.parts[0].text
   } else if (
-    data.promptFeedback &&
-    data.promptFeedback.blockReason
-  ) {
+    data.promptFeedback !== undefined &&
+    data.promptFeedback.blockReason !== undefined
+  ) { // Fixed: Added opening brace for else if block
     return `Response was blocked by the API: ${data.promptFeedback.blockReason}. ${(Array.isArray(data.promptFeedback.safetyRatings)
-      ? data.promptFeedback.safetyRatings
-      : []
-    ).map((r) => `${r.category}: ${r.probability}`).join(', ')}`
+        ? data.promptFeedback.safetyRatings
+        : []
+      ).map((r) => `${r.category}: ${r.probability}`).join(', ')
+      }`
   } else {
     console.warn('Unexpected API response structure:', data)
     return 'Received an empty or unexpected response from Jarvis.'
