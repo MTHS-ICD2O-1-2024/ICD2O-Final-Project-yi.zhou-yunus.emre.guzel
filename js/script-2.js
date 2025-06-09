@@ -3,6 +3,9 @@
  * Created on: May 2025
  * This file contains the JS for index.html
  */
+
+/* global hljs */
+
 'use strict'
 
 const chatArea = document.getElementById('chat-area')
