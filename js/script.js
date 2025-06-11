@@ -12,18 +12,16 @@
 const chatArea = document.getElementById('chat-area')
 const chatForm = document.getElementById('chat-form')
 const userInput = document.getElementById('user-input')
-// const sendButton = document.getElementById('send') // Removed as it's unused
 
 // Gemini API Key (replace with secure storage in production)
 const apiKey = 'AIzaSyCfS7TjJLVIP557y5rwqPAH9YGWZj5EtUs'
-
 
 // Toggle dark theme when button is clicked
 document.getElementById('btn-toggle').addEventListener('click', () => {
   document.body.classList.toggle('dark-theme')
 })
 
-// Press Enter to send the message
+// Press Enter to send the message, Shift+Enter for new line
 userInput.addEventListener('keyup', function (event) {
   if (event.key === 'Enter') {
     if (event.shiftKey) {
@@ -39,6 +37,7 @@ userInput.addEventListener('keyup', function (event) {
 chatForm.addEventListener('submit', async function (event) {
   event.preventDefault()
   const userMessageText = userInput.value.trim()
+  let promptForGemini = 'Imagine that you are Jarvis in Iron Man and answer all the questions like you are Jarvis.\r\n'
 
   if (userMessageText !== '') {
     // Show user message in chat
@@ -48,22 +47,20 @@ chatForm.addEventListener('submit', async function (event) {
     userInput.value = ''
     userInput.style.height = 'auto'
     userInput.style.overflowY = 'hidden'
-
+    promptForGemini += userMessageText
     // Show typing indicator
     const typingIndicatorId = 'typing-indicator-' + Date.now()
     appendMessage('Jarvis is thinking...', 'bot', typingIndicatorId)
-
     try {
       // Check if it's a weather question
-      if (userMessageText.toLowerCase().startsWith('weather in')) {
+      if (userMessageText.toLowerCase().indexOf('weather in') > -1) {
         const weatherReply = await handleWeatherPrompt(userMessageText)
-        removeMessage(typingIndicatorId)
-        appendMessage(weatherReply, 'bot')
-        return
+        // add weather information to userMessageText, and tell Gemini to use it.
+        promptForGemini += '\r\n NOTE: I called a weather API externally, include this information to answer: ' + weatherReply
       }
 
       // Get response from Gemini API
-      const geminiResponse = await getGeminiResponse(userMessageText)
+      const geminiResponse = await getGeminiResponse(promptForGemini)
 
       // Remove typing indicator and show bot response
       removeMessage(typingIndicatorId)
@@ -81,7 +78,7 @@ chatForm.addEventListener('submit', async function (event) {
 })
 
 // Add a message to the chat area
-function appendMessage(text, sender, elementId = null) {
+function appendMessage (text, sender, elementId = null) {
   const messageDiv = document.createElement('div')
   messageDiv.classList.add('chat-message', `${sender}-message`)
 
@@ -122,7 +119,7 @@ function appendMessage(text, sender, elementId = null) {
 }
 
 // Remove a message by its ID
-function removeMessage(elementId) {
+function removeMessage (elementId) {
   const messageElement = document.getElementById(elementId)
   if (messageElement !== null) {
     messageElement.remove()
@@ -142,7 +139,7 @@ function escapeHtml (text) {
 }
 
 // Call Gemini API to get bot response
-async function getGeminiResponse(prompt) {
+async function getGeminiResponse (prompt) {
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`
 
   const requestBody = {
@@ -185,14 +182,13 @@ async function getGeminiResponse(prompt) {
   ) {
     return data.candidates[0].content.parts[0].text
   } else if (
-    data.promptFeedback !== undefined &&
-    data.promptFeedback.blockReason !== undefined
-  ) { // Fixed: Added opening brace for else if block
+    data.promptFeedback &&
+    data.promptFeedback.blockReason
+  ) {
     return `Response was blocked by the API: ${data.promptFeedback.blockReason}. ${(Array.isArray(data.promptFeedback.safetyRatings)
-        ? data.promptFeedback.safetyRatings
-        : []
-      ).map((r) => `${r.category}: ${r.probability}`).join(', ')
-      }`
+      ? data.promptFeedback.safetyRatings
+      : []
+    ).map((r) => `${r.category}: ${r.probability}`).join(', ')}`
   } else {
     console.warn('Unexpected API response structure:', data)
     return 'Received an empty or unexpected response from Jarvis.'
@@ -200,8 +196,8 @@ async function getGeminiResponse(prompt) {
 }
 
 // Handle weather-related prompts separately
-async function handleWeatherPrompt(userText) {
-  const cityMatch = userText.match(/weather in (.+)/i)
+async function handleWeatherPrompt (userText) {
+  const cityMatch = userText.match(/ weather in ([^\s?.!]+)/i)
   if (!cityMatch) return null
 
   const city = cityMatch[1].trim()
@@ -223,13 +219,8 @@ async function handleWeatherPrompt(userText) {
     const temp = Math.round(res.main.temp) // current temp, not min temp
     const pressure = res.main.pressure
     const pressureAtm = (pressure / 1013.25).toFixed(2)
-    const rise = new Date(res.sys.sunrise * 1000)
-    const set = new Date(res.sys.sunset * 1000)
-
-    const weatherMsg = `Temp: ${temp}°C\nPressure: ${pressure} hPa (${pressureAtm} atm)\nSunrise: ${rise.toLocaleTimeString()}\nSunset: ${set.toLocaleTimeString()}`
-
-    const fullMsg = `**** ${res.name}, ${res.sys.country} ****\nTemperature: ${temp}°C\nHumidity: ${res.main.humidity}%\nWeather: ${res.weather[0].description}\nPressure: ${pressure} hPa (${pressureAtm} atm)\nSunrise: ${rise.toLocaleTimeString()}\nSunset: ${set.toLocaleTimeString()}`
-
+    const weatherMsg = `Temp: ${temp}°C\nPressure: ${pressure} hPa (${pressureAtm} atm)\n}`
+    const fullMsg = `**** ${res.name}, ${res.sys.country} ****\nTemperature: ${temp}°C\nHumidity: ${res.main.humidity}%\nWeather: ${res.weather[0].description}\nPressure: ${pressure} hPa (${pressureAtm} atm)`
     return `${weatherMsg}\n\n${fullMsg}`
   } catch (error) {
     return `Failed to get weather info. ${error.message}`
